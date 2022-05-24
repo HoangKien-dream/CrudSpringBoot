@@ -7,6 +7,7 @@ import com.example.crudangular.entity.User;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.*;
+import java.time.LocalDate;
 
 public class OrderSpecification implements Specification<Order> {
     private SearchCriteria searchCriteria;
@@ -27,6 +28,10 @@ public class OrderSpecification implements Specification<Order> {
                         root.get(searchCriteria.getKey()),
                         String.valueOf(searchCriteria.getValue()));
             case GREATER_THAN_OR_EQUALS:
+                if (root.get(searchCriteria.getKey()).getJavaType() == LocalDate.class){
+                    return criteriaBuilder.greaterThanOrEqualTo(
+                            root.get(searchCriteria.getKey()), (LocalDate) searchCriteria.getValue());
+                }
                 return criteriaBuilder.greaterThanOrEqualTo(
                         root.get(searchCriteria.getKey()),
                         String.valueOf(searchCriteria.getValue()));
@@ -35,24 +40,26 @@ public class OrderSpecification implements Specification<Order> {
                         root.get(searchCriteria.getKey()),
                         String.valueOf(searchCriteria.getValue()));
             case LESS_THAN_OR_EQUALS:
+                if (root.get(searchCriteria.getKey()).getJavaType() == LocalDate.class){
+                    return criteriaBuilder.lessThanOrEqualTo(
+                            root.get(searchCriteria.getKey()), (LocalDate) searchCriteria.getValue());
+                }
                 return criteriaBuilder.lessThanOrEqualTo(
                         root.get(searchCriteria.getKey()),
                         String.valueOf(searchCriteria.getValue()));
             case JOIN:
                 Join<OrderDetail, Product> orderDetailProductJoin = root.join("orderDetails").join("product");
                 Predicate predicate = criteriaBuilder.or(
-                        // tìm trong order bản ghi có id giống giá trị truyền vào
-//                        criteriaBuilder.like(root.get("id"), "%" + searchCriteria.getValue() + "%"),
                         // hoặc tìm trong bảng product bản ghi có name giống với giá trị
                         criteriaBuilder.like(orderDetailProductJoin.get("name"), "%" + searchCriteria.getValue() + "%")
                 );
                 return predicate;
             case JOIN_USER:
                 Join<User, Order> orderUserJoin = root.join("user");
-               return criteriaBuilder.like(orderUserJoin.get("firstName"), "%" + searchCriteria.getValue() + "%");
-            case JOIN_PHONE:
-                Join<User, Order> userOrderJoin = root.join("user");
-                return criteriaBuilder.like(userOrderJoin.get("phone"), "%" + searchCriteria.getValue() + "%");
+               return criteriaBuilder.like(orderUserJoin.get(searchCriteria.getKey()), "%" + searchCriteria.getValue() + "%");
+//            case JOIN_PHONE:
+//                Join<User, Order> userOrderJoin = root.join("user");
+//                return criteriaBuilder.like(userOrderJoin.get("phone"), "%" + searchCriteria.getValue() + "%");
         }
         return null;
     }
