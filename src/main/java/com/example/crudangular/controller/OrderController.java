@@ -41,7 +41,13 @@ public class OrderController {
         Specification<Order> specification = Specification.where(null);
         if (keyword != null && keyword.length() > 0) {
             SearchCriteria searchCriteria
-                    = new SearchCriteria("keyword", SearchCriteriaOperator.JOIN, keyword);
+                    = new SearchCriteria("name", SearchCriteriaOperator.JOIN, keyword);
+            OrderSpecification filter = new OrderSpecification(searchCriteria);
+            specification = specification.and(filter);
+        }
+        if (status != 0) {
+            SearchCriteria searchCriteria
+                    = new SearchCriteria("status", SearchCriteriaOperator.EQUALS, status);
             OrderSpecification filter = new OrderSpecification(searchCriteria);
             specification = specification.and(filter);
         }

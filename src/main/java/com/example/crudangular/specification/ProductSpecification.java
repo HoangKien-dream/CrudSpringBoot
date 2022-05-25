@@ -1,26 +1,26 @@
 package com.example.crudangular.specification;
 
+import com.example.crudangular.entity.*;
 import com.example.crudangular.entity.Order;
-import com.example.crudangular.entity.OrderDetail;
-import com.example.crudangular.entity.Product;
-import com.example.crudangular.entity.User;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.*;
 import java.time.LocalDate;
 
-public class OrderSpecification implements Specification<Order> {
+public class ProductSpecification implements Specification<Product> {
     private SearchCriteria searchCriteria;
 
-    public OrderSpecification(SearchCriteria searchCriteria) {
+    public ProductSpecification(SearchCriteria searchCriteria) {
         this.searchCriteria = searchCriteria;
     }
 
     @Override
-    public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-        query.distinct(true);
+    public Predicate toPredicate(Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
         switch (searchCriteria.getOperator()) {
             case EQUALS:
+                if (searchCriteria.getKey().equals("name")){
+                    return criteriaBuilder.like(root.get(searchCriteria.getKey()),"%" + searchCriteria.getValue() +"%");
+                }
                 return criteriaBuilder.equal(
                         root.get(searchCriteria.getKey()),
                         searchCriteria.getValue());
@@ -48,16 +48,6 @@ public class OrderSpecification implements Specification<Order> {
                 return criteriaBuilder.lessThanOrEqualTo(
                         root.get(searchCriteria.getKey()),
                         String.valueOf(searchCriteria.getValue()));
-            case JOIN:
-                Join<OrderDetail, Product> orderDetailProductJoin = root.join("orderDetails").join("product");
-                // hoặc tìm trong bảng product bản ghi có name giống với giá trị
-                return criteriaBuilder.like(orderDetailProductJoin.get(searchCriteria.getKey()), "%" + searchCriteria.getValue() + "%");
-            case JOIN_USER:
-                Join<User, Order> orderUserJoin = root.join("user");
-                return criteriaBuilder.like(orderUserJoin.get(searchCriteria.getKey()), "%" + searchCriteria.getValue() + "%");
-//            case JOIN_PHONE:
-//                Join<User, Order> userOrderJoin = root.join("user");
-//                return criteriaBuilder.like(userOrderJoin.get("phone"), "%" + searchCriteria.getValue() + "%");
         }
         return null;
     }
