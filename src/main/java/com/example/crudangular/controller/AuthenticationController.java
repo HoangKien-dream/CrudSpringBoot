@@ -10,17 +10,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-
+@CrossOrigin("http://localhost:4200")
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -63,7 +60,7 @@ public class AuthenticationController {
                     null,
                     request.getRequestURL().toString(),
                     JwtUtil.ONE_DAY * 14);
-            CredentialDTO credential = new CredentialDTO(accessToken, refreshToken);
+            CredentialDTO credential = new CredentialDTO(accessToken, refreshToken,account.getUsername());
             return ResponseEntity.ok(credential);
         } catch (Exception ex) {
             //show error

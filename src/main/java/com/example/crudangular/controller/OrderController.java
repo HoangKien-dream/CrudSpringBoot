@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-@CrossOrigin("*")
+@CrossOrigin("http://localhost:4200")
 @Log4j2
 @RestController
 @RequestMapping(path = "api/v1/order")

@@ -18,6 +18,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -64,7 +66,10 @@ public class ApiAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 user.getAuthorities().iterator().next().getAuthority(),
                 request.getRequestURL().toString(),
                 JwtUtil.ONE_DAY * 14);
-        CredentialDTO credential = new CredentialDTO(accessToken, refreshToken);
+        CredentialDTO credential = new CredentialDTO(accessToken, refreshToken,user.getUsername());
+//        Map<String,Object> token = new HashMap<>();
+//        token.put("token",credential);
+//        token.put("user",user.getUsername());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         new ObjectMapper().writeValue(response.getOutputStream(), credential);
     }
