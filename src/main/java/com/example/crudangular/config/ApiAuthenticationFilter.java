@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -58,12 +59,12 @@ public class ApiAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         User user = (User) authentication.getPrincipal(); //get user that successfully login
         //generate tokens
         String accessToken = JwtUtil.generateToken(user.getUsername(),
-                user.getAuthorities().iterator().next().getAuthority(),
+                user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()),
                 request.getRequestURL().toString(),
                 JwtUtil.ONE_DAY * 7);
         // generate refresh token
         String refreshToken = JwtUtil.generateToken(user.getUsername(),
-                user.getAuthorities().iterator().next().getAuthority(),
+                user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()),
                 request.getRequestURL().toString(),
                 JwtUtil.ONE_DAY * 14);
         CredentialDTO credential = new CredentialDTO(accessToken, refreshToken,user.getUsername());

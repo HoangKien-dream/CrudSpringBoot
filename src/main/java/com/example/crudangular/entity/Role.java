@@ -1,5 +1,6 @@
 package com.example.crudangular.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,10 +17,9 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
-
-    @OneToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, mappedBy = "role", fetch = FetchType.LAZY)
+    @JsonIgnore
+    @ManyToMany(cascade = {CascadeType.ALL}, mappedBy = "roles", fetch = FetchType.LAZY)
     private Set<Account> accounts;
-
     public Role(String name) {
         this.name = name;
     }

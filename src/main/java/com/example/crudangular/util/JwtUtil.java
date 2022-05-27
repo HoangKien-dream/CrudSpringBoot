@@ -4,8 +4,10 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.example.crudangular.entity.Role;
 
 import java.util.Date;
+import java.util.List;
 
 //helper class for handling with jwt token
 public class JwtUtil {
@@ -41,8 +43,8 @@ public class JwtUtil {
         return decodedJWT;
     }
 
-    public static String generateToken(String subject, String role, String issuer, int expireAfter) {
-        if(role == null || role.length() == 0) {
+    public static String generateToken(String subject, List<String> role, String issuer, int expireAfter) {
+        if(role == null || role.size() == 0) {
             return JWT.create()
                     .withSubject(subject)
                     .withExpiresAt(new Date(System.currentTimeMillis() + expireAfter))

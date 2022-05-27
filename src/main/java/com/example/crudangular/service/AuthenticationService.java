@@ -15,10 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional
@@ -37,33 +34,51 @@ public class AuthenticationService implements UserDetailsService {
             throw new UsernameNotFoundException("User not found in database");
         }
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(account.getRole().getName()));
+        for (Role role:
+             account.getRoles()) {
+            authorities.add(new SimpleGrantedAuthority(role.getName()));
+        }
         UserDetails userDetail
                 = new User(account.getUsername(), account.getPassword(), authorities);
         return
                 userDetail;
     }
 
+    public AccountDTO addRole(String username,String name){
+        Role role = roleRepository.findByName(name).orElse(null);
+        Account account = accountRepository.findByUsername(username).orElse(null);
+        if (account!=null){
+            account.getRoles().add(role);
+            return new AccountDTO(account);
+        }
+        return null;
+    }
+
     public AccountDTO saveAccount(RegisterDTO registerDTO) {
         //create new user role if not exist
+        Set<Role> roleSet = new HashSet<>();
         Optional<Role> userRoleOptional = roleRepository.findByName(USER_ROLE);
         Role userRole = userRoleOptional.orElse(null);
         if (userRole == null) {
             //create new role
-            userRole = roleRepository.save(new Role(USER_ROLE));
+            userRole.setName(USER_ROLE);
         }
+        roleSet.add(userRole);
         //check if username has exist
         Optional<Account> byUsername = accountRepository.findByUsername(registerDTO.getUsername());
         if (byUsername.isPresent()) {
             return null;
         }
+        Set<Account> accountSet = new HashSet<>();
         Account account = new Account();
         account.setUsername(registerDTO.getUsername());
         account.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
         account.setCreatedAt(new Date());
         account.setUpdatedAt(new Date());
+        account.setRoles(roleSet);
         account.setStatus(1);
-        account.setRole(userRole);
+        accountSet.add(account);
+        userRole.setAccounts(accountSet);
         Account save = accountRepository.save(account);
         return new AccountDTO(save);
     }
